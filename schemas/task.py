@@ -6,12 +6,15 @@ class TaskBase(BaseModel):
     description: str
 
 
+class TaskUpdate(TaskBase):
+    completed: bool = False
+
+
 class Task(TaskBase):
     id: int
     completed: bool
     created_at: datetime
     updated_at: datetime
 
-
-class TaskUpdate(TaskBase):
-    completed: bool
+    class Config:
+        orm_mode = True
