@@ -1,8 +1,16 @@
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://task_keeper_db_user:tCgwbeOwKqgOxnJFiiYwAozZDhgEinlm@dpg-ch1s1abh4hsum43hrv20-a.frankfurt-postgres.render.com/task_keeper_db"
+load_dotenv()
+
+db_user = os.getenv("DB_USER")
+db_password = os.getenv("DB_PASSWORD")
+db_host = os.getenv("DB_HOST")
+
+SQLALCHEMY_DATABASE_URL = f"postgresql://{db_user}:{db_password}@{db_host}/task_keeper_db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={}, future=True
