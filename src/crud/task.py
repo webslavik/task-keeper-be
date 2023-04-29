@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
-from models.task import Task
-from schemas.task import TaskBase, TaskUpdate
+from src.models.task import Task
+from src.schemas.task import TaskBase, TaskUpdate
 
 
 def read_tasks(db: Session):

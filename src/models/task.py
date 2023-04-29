@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from datetime import datetime
 
-from db_setup import Base
+from src.db_setup import Base
 
 
 class Task(Base):
