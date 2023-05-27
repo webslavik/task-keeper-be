@@ -47,4 +47,4 @@ class TaskService:
             db.commit()
         except Exception as error:
             db.rollback()
-            raise RuntimeError("Failed to create task") from error
+            raise RuntimeError("Failed to delete task") from error

@@ -7,7 +7,7 @@ from src.db_setup import get_db
 
 
 from src.services.task import TaskService
-from src.crud.user import get_user_by_id
+from src.services.user import UserService
 
 from src.utils import check_authentication_token
 
@@ -17,7 +17,7 @@ router = APIRouter()
 
 @router.get("/users/{user_id}/tasks", dependencies=[Depends(check_authentication_token)])
 def get_tasks(user_id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, user_id)
+    user = UserService.get_user_by_id(db, user_id)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -27,7 +27,7 @@ def get_tasks(user_id: int, db: Session = Depends(get_db)):
 
 @router.get("/users/{user_id}/tasks/{task_id}")
 def get_task(user_id: int, task_id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, user_id)
+    user = UserService.get_user_by_id(db, user_id)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -42,7 +42,7 @@ def get_task(user_id: int, task_id: int, db: Session = Depends(get_db)):
 
 @router.post("/users/{user_id}/tasks", dependencies=[Depends(check_authentication_token)], status_code=status.HTTP_201_CREATED)
 def create_task(user_id: int, task: TaskBase, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, user_id)
+    user = UserService.get_user_by_id(db, user_id)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -56,7 +56,7 @@ def create_task(user_id: int, task: TaskBase, db: Session = Depends(get_db)):
 
 @router.patch("/users/{user_id}/tasks/{task_id}")
 def update_task(user_id: int, task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, user_id)
+    user = UserService.get_user_by_id(db, user_id)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -73,7 +73,7 @@ def update_task(user_id: int, task_id: int, task: TaskUpdate, db: Session = Depe
 
 @router.delete("/users/{user_id}/tasks/{task_id}")
 def delete_task(user_id: int, task_id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(db, user_id)
+    user = UserService.get_user_by_id(db, user_id)
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
