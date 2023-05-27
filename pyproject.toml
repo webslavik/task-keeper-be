@@ -10,12 +10,16 @@ packages = [{include = "task_keeper_be"}]
 python = "^3.11"
 fastapi = "^0.95.1"
 uvicorn = "^0.21.1"
-pydantic = "^1.10.7"
 sqlalchemy = "^2.0.10"
 sqlalchemy-utils = "^0.41.0"
 alembic = "^1.10.3"
 psycopg2-binary = "^2.9.6"
 python-dotenv = "^1.0.0"
+bcrypt = "^4.0.1"
+pydantic = "^1.10.7"
+python-multipart = "^0.0.6"
+python-jose = "^3.3.0"
+passlib = "^1.7.4"
 
 
 [build-system]
