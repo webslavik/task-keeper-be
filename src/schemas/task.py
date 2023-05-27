@@ -10,6 +10,10 @@ class TaskUpdate(TaskBase):
     completed: bool = False
 
 
+class TaskCreate(TaskBase):
+    user_id: int
+
+
 class Task(TaskBase):
     id: int
     completed: bool
