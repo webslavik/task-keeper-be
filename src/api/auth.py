@@ -1,6 +1,4 @@
-import os
 from datetime import timedelta
-from pydantic import BaseModel
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -9,8 +7,7 @@ from src.utils import get_hashed_password, verify_password, create_access_token
 from src.db_setup import get_db
 from src.schemas.user import UserRegister, UserLogin
 from src.crud.user import create_user, get_user_by_email
-
-access_token_expire_minutes = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+from src.constants import ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
 
@@ -26,7 +23,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    access_token_expires = timedelta(minutes=access_token_expire_minutes)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": db_user.email}, expires_delta=access_token_expires
     )

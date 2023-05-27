@@ -1,13 +1,21 @@
 from fastapi import FastAPI
 
+import src.constants
 from src.db_setup import engine
 from src.models import task, user
 from src.api import tasks, auth
 
-task.Base.metadata.create_all(bind=engine)
-user.Base.metadata.create_all(bind=engine)
 
-app = FastAPI()
+def init_api() -> FastAPI:
+    task.Base.metadata.create_all(bind=engine)
+    user.Base.metadata.create_all(bind=engine)
 
-app.include_router(tasks.router)
-app.include_router(auth.router)
+    app = FastAPI()
+
+    app.include_router(tasks.router)
+    app.include_router(auth.router)
+
+    return app
+
+
+app = init_api()

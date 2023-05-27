@@ -1,9 +1,8 @@
-from pydantic import BaseModel
 from typing import List
 from fastapi import Depends, APIRouter, HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.schemas.task import TaskBase, TaskUpdate, Task
+from src.schemas.task import TaskBase, TaskUpdate
 from src.db_setup import get_db
 from src.crud.task import read_task, create_task, update_task, delete_task
 from src.crud.user import get_user_by_id
@@ -49,7 +48,6 @@ def add_task(user_id: int, task: TaskBase, db: Session = Depends(get_db)):
     new_task = create_task(db, task=task, user_id=user_id)
 
     return {"task": new_task}
-
 
 
 @router.patch("/users/{user_id}/tasks/{task_id}")
