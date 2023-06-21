@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 
-import src.constants
 from src.db_setup import engine
 from src.models import task, user
 from src.api import tasks, auth
@@ -12,8 +11,8 @@ def init_api() -> FastAPI:
 
     app = FastAPI()
 
-    app.include_router(tasks.router)
-    app.include_router(auth.router)
+    app.include_router(tasks.router, tags=["Tasks"], prefix="/api/users")
+    app.include_router(auth.router, tags=["Auth"], prefix="/api/auth")
 
     return app
 

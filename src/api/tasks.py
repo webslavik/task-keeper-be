@@ -15,7 +15,7 @@ from src.utils import check_authentication
 router = APIRouter()
 
 
-@router.get("/users/{user_id}/tasks", dependencies=[Depends(check_authentication)])
+@router.get("/{user_id}/tasks", dependencies=[Depends(check_authentication)])
 def get_tasks(user_id: int, db: Session = Depends(get_db)):
     user = UserService.get_user_by_id(db, user_id)
 
@@ -25,7 +25,7 @@ def get_tasks(user_id: int, db: Session = Depends(get_db)):
     return {"tasks": user.tasks}
 
 
-@router.get("/users/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
+@router.get("/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
 def get_task(user_id: int, task_id: int, db: Session = Depends(get_db)):
     user = UserService.get_user_by_id(db, user_id)
 
@@ -40,7 +40,7 @@ def get_task(user_id: int, task_id: int, db: Session = Depends(get_db)):
     return {"task": found_task}
 
 
-@router.post("/users/{user_id}/tasks", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED)
+@router.post("/{user_id}/tasks", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED)
 def create_task(user_id: int, task: TaskBase, db: Session = Depends(get_db)):
     user = UserService.get_user_by_id(db, user_id)
 
@@ -54,7 +54,7 @@ def create_task(user_id: int, task: TaskBase, db: Session = Depends(get_db)):
     return {"task": created_task}
 
 
-@router.patch("/users/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
+@router.patch("/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
 def update_task(user_id: int, task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
     user = UserService.get_user_by_id(db, user_id)
 
@@ -71,7 +71,7 @@ def update_task(user_id: int, task_id: int, task: TaskUpdate, db: Session = Depe
     return {"task": updated_task}
 
 
-@router.delete("/users/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
+@router.delete("/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
 def delete_task(user_id: int, task_id: int, db: Session = Depends(get_db)):
     user = UserService.get_user_by_id(db, user_id)
 

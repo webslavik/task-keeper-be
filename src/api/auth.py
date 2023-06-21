@@ -12,7 +12,7 @@ from src.constants import ACCESS_TOKEN_EXPIRE_MINUTES
 router = APIRouter()
 
 
-@router.post("/auth/login")
+@router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = UserService.get_user_by_email(db, user.email)
 
@@ -31,7 +31,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
     return {"access_token": access_token}
 
 
-@router.post("/auth/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(user: UserRegister, db: Session = Depends(get_db)):
     db_user = UserService.get_user_by_email(db, user.email)
 
