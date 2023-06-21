@@ -6,7 +6,7 @@ from src.utils import get_hashed_password, verify_password, create_access_token
 
 from src.db_setup import get_db
 from src.schemas.user import UserRegister, UserLogin
-from src.services.user import UserService
+from src.repositories.user import UserService
 from src.constants import ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter()
@@ -14,9 +14,9 @@ router = APIRouter()
 
 @router.post("/auth/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
-    found_user = UserService.get_user_by_email(db, user.email)
+    db_user = UserService.get_user_by_email(db, user.email)
 
-    if not found_user or not verify_password(user.password, found_user.password):
+    if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
@@ -25,7 +25,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": found_user.email}, expires_delta=access_token_expires
+        data={"sub": db_user.email}, expires_delta=access_token_expires
     )
 
     return {"access_token": access_token}

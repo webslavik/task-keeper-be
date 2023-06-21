@@ -31,8 +31,8 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
     return encoded_jwt
 
-# TODO: Temprorary solution, put it here
-async def check_authentication_token(authorization: str = Header(...)):
+
+async def check_authentication(authorization: str = Header(...)):
     try:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
