@@ -4,7 +4,11 @@ from src.models.task import Task
 from src.schemas.task import TaskBase, TaskUpdate
 
 
-class TaskService:
+class TaskRepository:
+    @classmethod
+    def get_tasks(cls, db: Session, user_id: int):
+        return db.query(Task).filter(Task.user_id == user_id).all()
+
     @classmethod
     def get_task(cls, db: Session, task_id: int):
         return db.query(Task).get(task_id)

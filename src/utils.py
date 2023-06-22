@@ -2,8 +2,12 @@ from datetime import datetime, timedelta
 
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from fastapi import Header, HTTPException, status
+from fastapi import Header, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
+
+from src.repositories.user import UserRepository
+from src.db_setup import get_db
 from src.constants import SECRET_KEY, JWT_ALGORITHM
 
 
@@ -32,7 +36,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def check_authentication(authorization: str = Header(...)):
+def check_authentication(authorization: str = Header(...)):
     try:
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -45,7 +49,7 @@ async def check_authentication(authorization: str = Header(...)):
             raise credentials_exception
 
         payload = jwt.decode(token, SECRET_KEY, algorithms=JWT_ALGORITHM)
-        
+
         return payload
     except (ValueError, JWTError):
         raise credentials_exception

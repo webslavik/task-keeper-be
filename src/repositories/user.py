@@ -4,7 +4,7 @@ from src.schemas.user import UserBase
 from src.models.user import User
 
 
-class UserService:
+class UserRepository:
     @classmethod
     def get_user_by_id(cls, db: Session, user_id: str):
         return db.query(User).get(user_id)

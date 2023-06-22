@@ -6,15 +6,15 @@ from src.utils import get_hashed_password, verify_password, create_access_token
 
 from src.db_setup import get_db
 from src.schemas.user import UserRegister, UserLogin
-from src.repositories.user import UserService
+from src.repositories.user import UserRepository
 from src.constants import ACCESS_TOKEN_EXPIRE_MINUTES
 
-router = APIRouter()
+router = APIRouter(tags=["Auth"], prefix="/api/auth")
 
 
 @router.post("/login")
 def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = UserService.get_user_by_email(db, user.email)
+    db_user = UserRepository.get_user_by_email(db, user.email)
 
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(
@@ -33,13 +33,13 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(user: UserRegister, db: Session = Depends(get_db)):
-    db_user = UserService.get_user_by_email(db, user.email)
+    db_user = UserRepository.get_user_by_email(db, user.email)
 
     if db_user is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
 
     user.password = get_hashed_password(user.password)
 
-    UserService.create_user(db, user)
+    UserRepository.create_user(db, user)
 
     return {"message": "User was created"}

@@ -11,8 +11,8 @@ def init_api() -> FastAPI:
 
     app = FastAPI()
 
-    app.include_router(tasks.router, tags=["Tasks"], prefix="/api/users")
-    app.include_router(auth.router, tags=["Auth"], prefix="/api/auth")
+    app.include_router(tasks.router)
+    app.include_router(auth.router)
 
     return app
 
