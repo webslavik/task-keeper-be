@@ -1,17 +1,19 @@
 from datetime import datetime, timedelta
 
+from fastapi import Depends, HTTPException, status
+
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from fastapi import Header, Depends, HTTPException, status
-from sqlalchemy.orm import Session
-
+from fastapi.security import OAuth2PasswordBearer
 
 from src.repositories.user import UserRepository
 from src.db_setup import get_db
 from src.constants import SECRET_KEY, JWT_ALGORITHM
 
+from sqlalchemy.orm import Session
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 def verify_password(plain_password, hashed_password):
@@ -36,20 +38,29 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-def check_authentication(authorization: str = Header(...)):
+async def check_authentication(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
     try:
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        scheme, token = authorization.split()
-
-        if scheme != "Bearer":
-            raise credentials_exception
-
         payload = jwt.decode(token, SECRET_KEY, algorithms=JWT_ALGORITHM)
+        user_id = int(payload.get("sub"))
 
-        return payload
-    except (ValueError, JWTError):
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
         raise credentials_exception
+
+    return payload
+
+
+async def get_current_user(payload: int = Depends(check_authentication), db: Session = Depends(get_db)):
+    user = UserRepository.get_user_by_id(db, payload.get("sub"))
+
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    return user

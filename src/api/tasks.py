@@ -6,20 +6,27 @@ from src.schemas.task import TaskBase, TaskUpdate
 from src.db_setup import get_db
 
 from src.repositories.task import TaskRepository
-from src.utils import check_authentication
+from src.utils import check_authentication, get_current_user
 
 
-router = APIRouter(tags=["Tasks"], prefix="/api/users")
+router = APIRouter(tags=["Tasks"], prefix="/api/tasks")
 
 
-@router.get("/{user_id:int}/tasks", dependencies=[Depends(check_authentication)])
-def get_tasks(user_id: int, db: Session = Depends(get_db)):
-    tasks = TaskRepository.get_tasks(db, user_id)
+@router.get("/", dependencies=[Depends(check_authentication)])
+def get_tasks(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    tasks = TaskRepository.get_tasks(db, current_user.id)
 
     return {"tasks": tasks}
 
 
-@router.get("/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
+@router.post("/", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED)
+def create_task(task: TaskBase, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
+    created_task = TaskRepository.create_task(db, task, current_user.id)
+
+    return {"task": created_task}
+
+
+@router.get("/{task_id}", dependencies=[Depends(check_authentication)])
 def get_task(task_id: int, db: Session = Depends(get_db)):
     found_task = TaskRepository.get_task(db, task_id)
 
@@ -29,14 +36,7 @@ def get_task(task_id: int, db: Session = Depends(get_db)):
     return {"task": found_task}
 
 
-@router.post("/{user_id}/tasks", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED)
-def create_task(user_id: int, task: TaskBase, db: Session = Depends(get_db)):
-    created_task = TaskRepository.create_task(db, task, user_id)
-
-    return {"task": created_task}
-
-
-@router.patch("/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
+@router.patch("/{task_id}", dependencies=[Depends(check_authentication)])
 def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
     found_task = TaskRepository.get_task(db, task_id)
 
@@ -48,7 +48,7 @@ def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
     return {"task": updated_task}
 
 
-@router.delete("/{user_id}/tasks/{task_id}", dependencies=[Depends(check_authentication)])
+@router.delete("/{task_id}", dependencies=[Depends(check_authentication)])
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     found_task = TaskRepository.get_task(db, task_id)
 
