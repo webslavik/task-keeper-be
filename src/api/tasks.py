@@ -12,14 +12,14 @@ from src.utils import check_authentication, get_current_user
 router = APIRouter(tags=["Tasks"], prefix="/api/tasks")
 
 
-@router.get("/", dependencies=[Depends(check_authentication)])
+@router.get("", dependencies=[Depends(check_authentication)])
 def get_tasks(db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     tasks = TaskRepository.get_tasks(db, current_user.id)
 
     return {"tasks": tasks}
 
 
-@router.post("/", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED)
+@router.post("", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED)
 def create_task(task: TaskBase, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
     created_task = TaskRepository.create_task(db, task, current_user.id)
 

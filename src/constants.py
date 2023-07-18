@@ -11,3 +11,7 @@ DB_HOST = os.getenv("DB_HOST")
 SECRET_KEY = os.getenv("SECRET_KEY")
 JWT_ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
+
+ALLOWED_ORIGINS = [
+    'http://localhost:3000'
+]
