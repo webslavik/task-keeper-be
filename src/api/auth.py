@@ -29,7 +29,9 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         expires_delta=access_token_expires
     )
 
-    return {"access_token": access_token}
+    del db_user.password
+
+    return {"access_token": access_token, "user": db_user}
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)

@@ -13,5 +13,6 @@ JWT_ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 ALLOWED_ORIGINS = [
+    'https://task-keeper-fe.onrender.com',
     'http://localhost:3000'
 ]
