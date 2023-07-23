@@ -20,7 +20,6 @@ class TaskRepository:
 
         try:
             db.commit()
-            db.refresh(created_task)
         except Exception as error:
             db.rollback()
             raise RuntimeError("Failed to create task") from error
@@ -36,7 +35,6 @@ class TaskRepository:
 
         try:
             db.commit()
-            db.refresh(found_task)
         except Exception as error:
             db.rollback()
             raise RuntimeError("Failed to create task") from error

@@ -23,7 +23,6 @@ class UserRepository:
 
         try:
             db.commit()
-            db.refresh(created_user)
         except Exception as error:
             db.rollback()
             raise RuntimeError("Failed to create user") from error
