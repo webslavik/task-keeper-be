@@ -24,3 +24,7 @@ class Task(TaskBase):
 
     class Config:
         orm_mode = True
+
+
+class TasksResponseSchema(BaseModel):
+    tasks: list[Task]

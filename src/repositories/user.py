@@ -6,17 +6,17 @@ from src.models.user import User
 
 class UserRepository:
     @classmethod
-    def get_user_by_id(cls, db: Session, user_id: str):
+    def get_user_by_id(cls, db: Session, user_id: str) -> User:
         return db.query(User).get(user_id)
 
 
     @classmethod
-    def get_user_by_email(cls, db: Session, email: str):
+    def get_user_by_email(cls, db: Session, email: str) -> User:
         return db.query(User).filter(User.email == email).first()
 
 
     @classmethod
-    def create_user(cls, db: Session, user: UserBase):
+    def create_user(cls, db: Session, user: UserBase) -> User:
         created_user = User(**user.dict())
 
         db.add(created_user)

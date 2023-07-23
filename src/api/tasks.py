@@ -1,8 +1,7 @@
-from typing import List
 from fastapi import Depends, APIRouter, HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.schemas.task import TaskBase, TaskUpdate
+from src.schemas.task import TaskBase, TaskUpdate, TasksResponseSchema, Task
 from src.db_setup import get_db
 
 from src.repositories.task import TaskRepository
@@ -19,42 +18,40 @@ def get_tasks(db: Session = Depends(get_db), current_user: dict = Depends(get_cu
     return {"tasks": tasks}
 
 
-@router.post("", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED)
+@router.post("", dependencies=[Depends(check_authentication)], status_code=status.HTTP_201_CREATED, response_model=Task)
 def create_task(task: TaskBase, db: Session = Depends(get_db), current_user: dict = Depends(get_current_user)):
-    created_task = TaskRepository.create_task(db, task, current_user.id)
+    db_task = TaskRepository.create_task(db, task, current_user.id)
 
-    return {"task": created_task}
+    return db_task
 
 
-@router.get("/{task_id}", dependencies=[Depends(check_authentication)])
+@router.get("/{task_id}", dependencies=[Depends(check_authentication)], response_model=Task)
 def get_task(task_id: int, db: Session = Depends(get_db)):
-    found_task = TaskRepository.get_task(db, task_id)
+    db_task = TaskRepository.get_task(db, task_id)
 
-    if found_task is None:
+    if db_task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
-    return {"task": found_task}
+    return db_task
 
 
-@router.patch("/{task_id}", dependencies=[Depends(check_authentication)])
+@router.patch("/{task_id}", dependencies=[Depends(check_authentication)], response_model=Task)
 def update_task(task_id: int, task: TaskUpdate, db: Session = Depends(get_db)):
-    found_task = TaskRepository.get_task(db, task_id)
+    db_task = TaskRepository.get_task(db, task_id)
 
-    if found_task is None:
+    if db_task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
     updated_task = TaskRepository.update_task(db, task_id, task=task)
 
-    return {"task": updated_task}
+    return updated_task
 
 
-@router.delete("/{task_id}", dependencies=[Depends(check_authentication)])
+@router.delete("/{task_id}", dependencies=[Depends(check_authentication)], status_code=status.HTTP_204_NO_CONTENT)
 def delete_task(task_id: int, db: Session = Depends(get_db)):
-    found_task = TaskRepository.get_task(db, task_id)
+    db_task = TaskRepository.get_task(db, task_id)
 
-    if found_task is None:
+    if db_task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
     TaskRepository.delete_task(db, task_id)
-
-    return {"message": "Task was deleted"}

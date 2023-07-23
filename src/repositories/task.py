@@ -6,15 +6,15 @@ from src.schemas.task import TaskBase, TaskUpdate
 
 class TaskRepository:
     @classmethod
-    def get_tasks(cls, db: Session, user_id: int):
+    def get_tasks(cls, db: Session, user_id: int) -> list[Task]:
         return db.query(Task).filter(Task.user_id == user_id).all()
 
     @classmethod
-    def get_task(cls, db: Session, task_id: int):
+    def get_task(cls, db: Session, task_id: int) -> Task:
         return db.query(Task).get(task_id)
 
     @classmethod
-    def create_task(cls, db: Session, task: TaskBase, user_id: int):
+    def create_task(cls, db: Session, task: TaskBase, user_id: int) -> Task:
         created_task = Task(**task.dict(), user_id=user_id)
         db.add(created_task)
 
@@ -28,7 +28,7 @@ class TaskRepository:
         return created_task
 
     @classmethod
-    def update_task(cls, db: Session, task_id: int, task: TaskUpdate):
+    def update_task(cls, db: Session, task_id: int, task: TaskUpdate) -> Task:
         found_task = cls.get_task(db, task_id)
         found_task.title = task.title
         found_task.description = task.description

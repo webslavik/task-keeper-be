@@ -5,14 +5,14 @@ from sqlalchemy.orm import Session
 from src.utils import get_hashed_password, verify_password, create_access_token
 
 from src.db_setup import get_db
-from src.schemas.user import UserRegister, UserLogin
+from src.schemas.user import UserRegister, UserLogin, UserLoginResponseSchema
 from src.repositories.user import UserRepository
 from src.constants import ACCESS_TOKEN_EXPIRE_MINUTES
 
 router = APIRouter(tags=["Auth"], prefix="/api/auth")
 
 
-@router.post("/login")
+@router.post("/login", response_model=UserLoginResponseSchema)
 def login(user: UserLogin, db: Session = Depends(get_db)):
     db_user = UserRepository.get_user_by_email(db, user.email)
 
@@ -31,7 +31,7 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     del db_user.password
 
-    return {"access_token": access_token, "user": db_user}
+    return {"access_token": access_token, "user": vars(db_user)}
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
@@ -44,5 +44,3 @@ def register(user: UserRegister, db: Session = Depends(get_db)):
     user.password = get_hashed_password(user.password)
 
     UserRepository.create_user(db, user)
-
-    return {"message": "User was created"}
