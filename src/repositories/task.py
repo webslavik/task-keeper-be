@@ -10,8 +10,8 @@ class TaskRepository:
         return db.query(Task).filter(Task.user_id == user_id).all()
 
     @classmethod
-    def get_task(cls, db: Session, task_id: int) -> Task:
-        return db.query(Task).get(task_id)
+    def get_task(cls, db: Session, task_id: int, user_id: int) -> Task:
+        return db.query(Task).filter(Task.id == task_id, Task.user_id == user_id).first()
 
     @classmethod
     def create_task(cls, db: Session, task: TaskBase, user_id: int) -> Task:
@@ -27,8 +27,8 @@ class TaskRepository:
         return created_task
 
     @classmethod
-    def update_task(cls, db: Session, task_id: int, task: TaskUpdate) -> Task:
-        found_task = cls.get_task(db, task_id)
+    def update_task(cls, db: Session, task_id: int, user_id: int, task: TaskUpdate) -> Task:
+        found_task = cls.get_task(db, task_id, user_id)
         found_task.title = task.title
         found_task.description = task.description
         found_task.completed = task.completed
@@ -43,9 +43,9 @@ class TaskRepository:
 
 
     @classmethod
-    def delete_task(cls, db: Session, task_id: int):
+    def delete_task(cls, db: Session, task_id: int, user_id: int) -> None:
         try:
-            db.query(Task).filter(Task.id == task_id).delete()
+            db.query(Task).filter(Task.id == task_id, Task.user_id == user_id).delete()
             db.commit()
         except Exception as error:
             db.rollback()
