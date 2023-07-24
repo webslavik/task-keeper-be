@@ -8,7 +8,8 @@ from src.constants import DB_USER, DB_PASSWORD, DB_HOST
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/task_keeper_db"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={}, future=True
+    SQLALCHEMY_DATABASE_URL,
+    future=True
 )
 SessionLocal = sessionmaker(
     autocommit=False,
