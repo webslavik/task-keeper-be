@@ -10,7 +10,7 @@ from src.repositories.user import UserRepository
 from src.db_setup import get_db
 from src.constants import SECRET_KEY, JWT_ALGORITHM
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -57,8 +57,8 @@ async def check_authentication(token: str = Depends(oauth2_scheme)):
     return payload
 
 
-async def get_current_user(payload: int = Depends(check_authentication), db: Session = Depends(get_db)):
-    user = UserRepository.get_user_by_id(db, payload.get("sub"))
+async def get_current_user(payload: int = Depends(check_authentication), db: AsyncSession = Depends(get_db)):
+    user = await UserRepository.get_user_by_id(db, int(payload.get("sub")))
 
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

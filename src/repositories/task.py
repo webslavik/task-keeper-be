@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.models.task import Task
 from src.schemas.task import TaskBase, TaskUpdate
@@ -6,47 +7,45 @@ from src.schemas.task import TaskBase, TaskUpdate
 
 class TaskRepository:
     @classmethod
-    def get_tasks(cls, db: Session, user_id: int) -> list[Task]:
-        return db.query(Task).filter(Task.user_id == user_id).all()
+    async def get_tasks(cls, db: AsyncSession, user_id: int) -> list[Task]:
+        stmt = select(Task).where(Task.user_id == user_id)
+        result = await db.scalars(stmt)
+
+        return result.all()
 
     @classmethod
-    def get_task(cls, db: Session, task_id: int, user_id: int) -> Task:
-        return db.query(Task).filter(Task.id == task_id, Task.user_id == user_id).first()
+    async def get_task(cls, db: AsyncSession, task_id: int, user_id: int) -> Task:
+        stmt = select(Task).where(Task.id == task_id, Task.user_id == user_id)
+        result = await db.scalars(stmt)
+
+        return result.one_or_none()
 
     @classmethod
-    def create_task(cls, db: Session, task: TaskBase, user_id: int) -> Task:
+    async def create_task(cls, db: AsyncSession, task: TaskBase, user_id: int) -> Task:
         created_task = Task(**task.dict(), user_id=user_id)
-        db.add(created_task)
 
-        try:
-            db.commit()
-        except Exception as error:
-            db.rollback()
-            raise RuntimeError("Failed to create task") from error
+        db.add(created_task)
+        await db.commit()
+        await db.refresh(created_task)
 
         return created_task
 
     @classmethod
-    def update_task(cls, db: Session, task_id: int, user_id: int, task: TaskUpdate) -> Task:
-        found_task = cls.get_task(db, task_id, user_id)
+    async def update_task(cls, db: AsyncSession, task_id: int, user_id: int, task: TaskUpdate) -> Task:
+        found_task = await cls.get_task(db, task_id, user_id)
+
         found_task.title = task.title
         found_task.description = task.description
         found_task.completed = task.completed
 
-        try:
-            db.commit()
-        except Exception as error:
-            db.rollback()
-            raise RuntimeError("Failed to create task") from error
+        await db.commit()
 
-        return found_task
-
+        # TODO: how to return updated task with correct format?
+        # return found_task
 
     @classmethod
-    def delete_task(cls, db: Session, task_id: int, user_id: int) -> None:
-        try:
-            db.query(Task).filter(Task.id == task_id, Task.user_id == user_id).delete()
-            db.commit()
-        except Exception as error:
-            db.rollback()
-            raise RuntimeError("Failed to delete task") from error
+    async def delete_task(cls, db: AsyncSession, task_id: int, user_id: int) -> None:
+        found_task = await cls.get_task(db, task_id, user_id)
+
+        await db.delete(found_task)
+        await db.commit()

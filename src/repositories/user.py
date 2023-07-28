@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.schemas.user import UserBase
 from src.models.user import User
@@ -6,25 +7,29 @@ from src.models.user import User
 
 class UserRepository:
     @classmethod
-    def get_user_by_id(cls, db: Session, user_id: str) -> User:
-        return db.query(User).get(user_id)
+    async def get_user_by_id(cls, db: AsyncSession, user_id: int) -> User:
+        stmt = select(User).where(User.id == user_id)
+        result = await db.scalars(stmt)
+        user = result.one_or_none()
+
+        return user
 
 
     @classmethod
-    def get_user_by_email(cls, db: Session, email: str) -> User:
-        return db.query(User).filter(User.email == email).first()
+    async def get_user_by_email(cls, db: AsyncSession, email: str) -> User:
+        stmt = select(User).where(User.email == email)
+        result = await db.scalars(stmt)
+        user = result.one_or_none()
+
+        return user
 
 
     @classmethod
-    def create_user(cls, db: Session, user: UserBase) -> User:
+    async def create_user(cls, db: AsyncSession, user: UserBase) -> User:
         created_user = User(**user.dict())
 
         db.add(created_user)
-
-        try:
-            db.commit()
-        except Exception as error:
-            db.rollback()
-            raise RuntimeError("Failed to create user") from error
+        await db.commit()
+        await db.refresh(created_user)
 
         return created_user

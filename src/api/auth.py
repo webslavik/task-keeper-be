@@ -1,6 +1,6 @@
 from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.utils import get_hashed_password, verify_password, create_access_token
 
@@ -13,8 +13,8 @@ router = APIRouter(tags=["Auth"], prefix="/api/auth")
 
 
 @router.post("/login", response_model=UserLoginResponseSchema)
-def login(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = UserRepository.get_user_by_email(db, user.email)
+async def login(user: UserLogin, db: AsyncSession = Depends(get_db)):
+    db_user = await UserRepository.get_user_by_email(db, user.email)
 
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(
@@ -35,12 +35,12 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-def register(user: UserRegister, db: Session = Depends(get_db)):
-    db_user = UserRepository.get_user_by_email(db, user.email)
+async def register(user: UserRegister, db: AsyncSession = Depends(get_db)):
+    db_user = await UserRepository.get_user_by_email(db, user.email)
 
     if db_user is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists")
 
     user.password = get_hashed_password(user.password)
 
-    UserRepository.create_user(db, user)
+    await UserRepository.create_user(db, user)
