@@ -39,9 +39,9 @@ class TaskRepository:
         found_task.completed = task.completed
 
         await db.commit()
+        await db.refresh(found_task)
 
-        # TODO: how to return updated task with correct format?
-        # return found_task
+        return found_task
 
     @classmethod
     async def delete_task(cls, db: AsyncSession, task_id: int, user_id: int) -> None:

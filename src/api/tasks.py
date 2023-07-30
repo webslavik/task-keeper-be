@@ -39,14 +39,16 @@ async def get_task(task_id: int, db: AsyncSession = Depends(get_db), current_use
     return db_task
 
 
-@router.patch("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.patch("/{task_id}", response_model=Task)
 async def update_task(task_id: int, task: TaskUpdate, db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     db_task = await TaskRepository.get_task(db, task_id, current_user.id)
 
     if db_task is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
-    await TaskRepository.update_task(db, task_id, current_user.id, task=task)
+    updated_task = await TaskRepository.update_task(db, task_id, current_user.id, task=task)
+
+    return updated_task
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
