@@ -18,9 +18,6 @@ class Base(DeclarativeBase):
     pass
 
 async def get_db():
-    async with engine.begin() as connection:
-        await connection.run_sync(Base.metadata.create_all)
-
     db: AsyncSession = async_session()
     try:
         yield db
