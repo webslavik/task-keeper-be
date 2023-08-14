@@ -2,8 +2,10 @@ from datetime import datetime
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm import validates
 
 from src.db_setup import Base
+from src.helpers.get_hashed_password import get_hashed_password
 
 
 class User(Base):
@@ -19,3 +21,8 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(default=datetime.utcnow, nullable=False)
 
     tasks: Mapped[list["Task"]] = relationship(back_populates="user", cascade="all")
+
+
+    @validates("password")
+    def validate_password(self, key, password: str) -> str:
+        return get_hashed_password(password)

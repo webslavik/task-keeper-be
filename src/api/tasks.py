@@ -1,11 +1,11 @@
 from fastapi import Depends, APIRouter, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.schemas.task import TaskBase, TaskUpdate, TasksResponseSchema, Task
+from src.schemas.task import TaskBase, TaskUpdate, Task
 from src.db_setup import get_db
 
 from src.repositories.task import TaskRepository
-from src.utils import check_authentication, get_current_user
+from src.helpers import check_authentication, get_current_user
 
 
 router = APIRouter(
